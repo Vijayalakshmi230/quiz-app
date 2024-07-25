@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import './QuizComponents.css';
 
 const QuizComponent = () => {
   const [questions, setQuestions] = useState([]);
@@ -18,12 +19,12 @@ const QuizComponent = () => {
           limit: 10
         }
       })
-      .then(response => {
-        setQuestions(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching questions:', error);
-      });
+        .then(response => {
+          setQuestions(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching questions:', error);
+        });
     }
   }, [quizStarted]);
 
@@ -39,7 +40,7 @@ const QuizComponent = () => {
       }
     });
     setScore(calculatedScore);
-    setReviewMode(false); 
+    setReviewMode(true);
   };
 
   const nextQuestion = () => {
@@ -60,71 +61,73 @@ const QuizComponent = () => {
   };
 
   return (
-    <div>
+    <div className="quiz-container">
       <h1>Quiz App</h1>
       {!quizStarted ? (
-        <button onClick={() => setQuizStarted(true)}>Start Quiz</button>
+        <button className="btn" onClick={() => setQuizStarted(true)}>Start Quiz</button>
       ) : reviewMode ? (
         <div>
           <h2>Review Your Answers</h2>
           {questions.map(question => (
-            <div key={question.id}>
+            <div key={question.id} className="question-container">
               <p>{question.question}</p>
-              {Object.entries(question.answers).map(([key, value]) => (
-                <div key={key}>
-                  <label>
-                    <input 
-                      type="radio" 
-                      name={question.id} 
-                      value={key} 
-                      disabled
-                      checked={answers[question.id] === key} 
-                    />
-                    {value}
-                  </label>
-                </div>
-              ))}
+              {Object.entries(question.answers)
+                .filter(([key, value]) => value) // Filter out undefined/null answers
+                .map(([key, value]) => (
+                  <div key={key} className="answer-option">
+                    <label>
+                      <input
+                        type="radio"
+                        name={question.id}
+                        value={key}
+                        disabled
+                        checked={answers[question.id] === key}
+                      />
+                      {value}
+                    </label>
+                  </div>
+                ))}
               {question.correct_answer && (
-                <p>Correct Answer: {question.answers[question.correct_answer]}</p>
+                <p className="correct-answer">Correct Answer: {question.answers[question.correct_answer]}</p>
               )}
             </div>
           ))}
-          <button onClick={() => setReviewMode(false)}>Back to Score</button>
+          <button className="btn" onClick={() => setReviewMode(false)}>Back to Score</button>
         </div>
       ) : score === null ? (
         questions.length > 0 && (
           <div>
             <p>{questions[currentQuestionIndex].question}</p>
-            {Object.entries(questions[currentQuestionIndex].answers).map(([key, value]) => (
-              value && (
-                <div key={key}>
-                  <input 
-                    type="radio" 
-                    name={questions[currentQuestionIndex].id} 
-                    value={key} 
+            {Object.entries(questions[currentQuestionIndex].answers)
+              .filter(([key, value]) => value) // Filter out undefined/null answers
+              .map(([key, value]) => (
+                <div key={key} className="answer-option">
+                  <input
+                    type="radio"
+                    name={questions[currentQuestionIndex].id}
+                    value={key}
                     checked={answers[questions[currentQuestionIndex].id] === key}
-                    onChange={() => handleAnswer(questions[currentQuestionIndex].id, key)} 
+                    onChange={() => handleAnswer(questions[currentQuestionIndex].id, key)}
                   />
                   <label>{value}</label>
                 </div>
-              )
-            ))}
-            <div>
-              <button onClick={previousQuestion} disabled={currentQuestionIndex === 0}>Previous</button>
+              ))}
+            <div className="navigation-buttons">
+              <button className="btn" onClick={previousQuestion} disabled={currentQuestionIndex === 0}>Previous</button>
               {currentQuestionIndex < questions.length - 1 && (
-                <button onClick={nextQuestion}>Next</button>
+                <button className="btn" onClick={nextQuestion}>Next</button>
               )}
               {currentQuestionIndex === questions.length - 1 && (
-                <button onClick={handleSubmit}>Submit</button>
+                <button className="btn" onClick={handleSubmit}>Submit</button>
               )}
             </div>
           </div>
         )
       ) : (
         <div>
-          <p>Score: {score} / {questions.length}</p>
-          <button onClick={() => setReviewMode(true)}>Review Answers</button>
-          <button onClick={handleRestart}>Restart Quiz</button>
+          <p className="score">Score: {score} / {questions.length}</p>
+          <button className="btn" onClick={() => setReviewMode(true)}>Review Answers</button>
+          <button className="btn" onClick={handleRestart}>Restart Quiz</button>
         </div>
       )}
     </div>
