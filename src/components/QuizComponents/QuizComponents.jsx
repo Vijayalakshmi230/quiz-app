@@ -39,7 +39,7 @@ const QuizComponent = () => {
       }
     });
     setScore(calculatedScore);
-    setReviewMode(false); // Show the score after submission
+    setReviewMode(false); 
   };
 
   const nextQuestion = () => {
